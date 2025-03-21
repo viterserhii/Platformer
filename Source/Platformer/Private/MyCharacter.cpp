@@ -1,4 +1,5 @@
 #include "MyCharacter.h"
+#include "MyGameMode.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -95,3 +96,21 @@ void AMyCharacter::StopSprinting()
     GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
+void AMyCharacter::FellOutOfWorld(const UDamageType& dmgType)
+{
+	Die();
+}
+
+void AMyCharacter::Die()
+{
+	AController* PlayerController = GetController();
+	if (PlayerController)
+	{
+		AMyGameMode* GM = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
+		if (GM)
+		{
+			GM->Respawn(PlayerController);
+		}
+	}
+	Destroy();
+}
