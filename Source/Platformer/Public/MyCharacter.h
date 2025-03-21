@@ -29,6 +29,9 @@ private:
     void StartSprinting();
     void StopSprinting();
 
+    void Die();
+	virtual void FellOutOfWorld(const UDamageType& dmgType) override;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
     float WalkSpeed;
 
