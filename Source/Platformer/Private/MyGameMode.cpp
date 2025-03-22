@@ -16,6 +16,7 @@ void AMyGameMode::BeginPlay()
 	if (PlayerStart)
 	{
 		SpawnLocation = PlayerStart->GetActorLocation();
+		SpawnRotation = PlayerStart->GetActorRotation();
 	}
 }
 
@@ -31,7 +32,7 @@ void AMyGameMode::Respawn(AController* Controller)
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-    AMyCharacter* NewPawn = GetWorld()->SpawnActor<AMyCharacter>(CharacterClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
+    AMyCharacter* NewPawn = GetWorld()->SpawnActor<AMyCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
     if (NewPawn)
     {
         Controller->Possess(NewPawn);
