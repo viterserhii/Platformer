@@ -3,15 +3,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/Controller.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputActionValue.h"
+#include "Engine/LocalPlayer.h"
+#include "Components/CapsuleComponent.h"
 
 AMyCharacter::AMyCharacter()
 {
     PrimaryActorTick.bCanEverTick = true;
-
-    WalkSpeed = 450.0f;
-    SprintSpeed = 900.0f;
-
-    GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
     SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
     SpringArm->SetupAttachment(RootComponent);
@@ -27,90 +28,91 @@ AMyCharacter::AMyCharacter()
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 }
 
-void AMyCharacter::BeginPlay()
-{
-    Super::BeginPlay();
-}
+//////////////////////////////////////////////////////////////////////////
+// Input
 
-void AMyCharacter::Tick(float DeltaTime)
+void AMyCharacter::NotifyControllerChanged()
 {
-    Super::Tick(DeltaTime);
+    Super::NotifyControllerChanged();
+
+    // Add Input Mapping Context
+    if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+    {
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+        {
+            Subsystem->AddMappingContext(DefaultMappingContext, 0);
+        }
+    }
 }
 
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-    Super::SetupPlayerInputComponent(PlayerInputComponent);
+    // Set up action bindings
+    if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 
-    PlayerInputComponent->BindAxis("MoveForward", this, &AMyCharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &AMyCharacter::MoveRight);
+        // Jumping
+        EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+        EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-    PlayerInputComponent->BindAxis("Turn", this, &AMyCharacter::AddControllerYawInput); 
-    PlayerInputComponent->BindAxis("LookUp", this, &AMyCharacter::AddControllerPitchInput);
+        // Moving
+        EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
 
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMyCharacter::JumpAction);
+        EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMyCharacter::Sprint);
 
-    PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMyCharacter::StartSprinting);
-    PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMyCharacter::StopSprinting);
+        // Looking
+        EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
+    }
 }
 
-void AMyCharacter::MoveForward(float Value)
+void AMyCharacter::Move(const FInputActionValue& Value)
 {
-    if (Controller && Value != 0.0f)
+    // input is a Vector2D
+    FVector2D MovementVector = Value.Get<FVector2D>();
+
+    if (Controller != nullptr)
     {
+        // find out which way is forward
         const FRotator Rotation = Controller->GetControlRotation();
         const FRotator YawRotation(0, Rotation.Yaw, 0);
 
+        // get forward vector
+        const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
-        const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-        AddMovementInput(Direction, Value);
+        // get right vector 
+        const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+        // add movement 
+        AddMovementInput(ForwardDirection, MovementVector.Y);
+        AddMovementInput(RightDirection, MovementVector.X);
     }
 }
 
-void AMyCharacter::MoveRight(float Value)
+void AMyCharacter::Sprint(const FInputActionValue& Value)
 {
-    if (Controller && Value != 0.0f)
+    bool ShouldSprint = Value.Get<bool>();
+
+    if (ShouldSprint)
     {
-        const FRotator Rotation = Controller->GetControlRotation();
-        const FRotator YawRotation(0, Rotation.Yaw, 0); 
-
-        const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-        AddMovementInput(Direction, Value);
+        if (GetCharacterMovement()->IsMovingOnGround())
+        {
+            GetCharacterMovement()->MaxWalkSpeed = 800.0f;
+        }
     }
-}
-
-void AMyCharacter::JumpAction()
-{
-    if (!GetCharacterMovement()->IsFalling())
+    else
     {
-        Jump();
+        GetCharacterMovement()->MaxWalkSpeed = 500.0f;
     }
 }
 
-void AMyCharacter::StartSprinting()
+void AMyCharacter::Look(const FInputActionValue& Value)
 {
-    GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
-}
+    // input is a Vector2D
+    FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-void AMyCharacter::StopSprinting()
-{
-    GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-}
-
-void AMyCharacter::FellOutOfWorld(const UDamageType& dmgType)
-{
-	Die();
-}
-
-void AMyCharacter::Die()
-{
-	AController* PlayerController = GetController();
-	if (PlayerController)
-	{
-		AMyGameMode* GM = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
-		if (GM)
-		{
-			GM->Respawn(PlayerController);
-		}
-	}
-	Destroy();
+    if (Controller != nullptr)
+    {
+        // add yaw and pitch input to controller
+        AddControllerYawInput(LookAxisVector.X);
+        AddControllerPitchInput(LookAxisVector.Y);
+    }
 }

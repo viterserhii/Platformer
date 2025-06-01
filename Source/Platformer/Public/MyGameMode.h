@@ -23,4 +23,5 @@ protected:
 
 private:
 	FVector SpawnLocation;
+	FRotator SpawnRotation;
 };

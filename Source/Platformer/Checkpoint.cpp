@@ -87,3 +87,4 @@ void ACheckpoint::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 
 }
+
