@@ -9,6 +9,9 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
 AMyCharacter::AMyCharacter()
 {
@@ -27,6 +30,17 @@ AMyCharacter::AMyCharacter()
     GetCharacterMovement()->bOrientRotationToMovement = true; 
     GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
 }
+
+void AMyCharacter::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+    if (!bIsDead && GetActorLocation().Z < FallDeathZ)
+    {
+        Die();
+    }
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -115,4 +129,26 @@ void AMyCharacter::Look(const FInputActionValue& Value)
         AddControllerYawInput(LookAxisVector.X);
         AddControllerPitchInput(LookAxisVector.Y);
     }
+}
+
+void AMyCharacter::Die()
+{
+    if (bIsDead) return;
+    bIsDead = true;
+
+    if (auto* Move = GetCharacterMovement())
+    {
+        Move->StopMovementImmediately();
+    }
+    DisableInput(Cast<APlayerController>(GetController()));
+
+    if (APlayerController* PC = Cast<APlayerController>(GetController()))
+    {
+        if (AMyGameMode* GM = GetWorld()->GetAuthGameMode<AMyGameMode>())
+        {
+            GM->Respawn(PC);
+            return;
+        }
+    }
+    UE_LOG(LogTemp, Warning, TEXT("Die(): Respawn couldn't be triggered"));
 }
