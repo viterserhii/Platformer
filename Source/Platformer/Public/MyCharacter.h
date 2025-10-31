@@ -49,6 +49,11 @@ class PLATFORMER_API AMyCharacter : public ACharacter
 public:
 	AMyCharacter();
 
+	virtual void Tick(float DeltaSeconds) override;
+
+	UFUNCTION(BlueprintCallable)
+	void Die();
+
 protected:
 
 	/** Called for movement input */
@@ -60,6 +65,12 @@ protected:
 
 
 protected:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Life")
+	bool bIsDead = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Life")
+	float FallDeathZ = -2000.f;
 
 	virtual void NotifyControllerChanged() override;
 
