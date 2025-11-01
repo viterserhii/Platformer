@@ -34,11 +34,6 @@ AMyCharacter::AMyCharacter()
 void AMyCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-
-    //if (!bIsDead && GetActorLocation().Z < FallDeathZ)
-    //{
-    //    Die();
-    //}
 }
 
 
@@ -134,6 +129,20 @@ void AMyCharacter::Look(const FInputActionValue& Value)
 void AMyCharacter::FellOutOfWorld(const UDamageType& DmgType)
 {
     Die();
+}
+
+float AMyCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent,
+    AController* EventInstigator, AActor* DamageCauser)
+{
+    if (bIsDead || DamageAmount <= 0.f) return 0.f;
+
+    Health -= DamageAmount;
+    if (Health <= 0.f)
+    {
+        Health = 0.f;
+        Die();
+    }
+    return DamageAmount;
 }
 
 void AMyCharacter::Die()

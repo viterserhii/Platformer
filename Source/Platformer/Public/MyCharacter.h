@@ -51,6 +51,9 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator, AActor* DamageCauser) override;
+
 	virtual void FellOutOfWorld(const UDamageType& DmgType) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -65,14 +68,16 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-
 protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Life")
+	float MaxHealth = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Life")
+	float Health = 1.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Life")
 	bool bIsDead = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Life")
-	float FallDeathZ = -2000.f;
 
 	virtual void NotifyControllerChanged() override;
 
