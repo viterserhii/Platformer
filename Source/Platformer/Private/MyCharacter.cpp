@@ -35,10 +35,10 @@ void AMyCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    if (!bIsDead && GetActorLocation().Z < FallDeathZ)
-    {
-        Die();
-    }
+    //if (!bIsDead && GetActorLocation().Z < FallDeathZ)
+    //{
+    //    Die();
+    //}
 }
 
 
@@ -129,6 +129,11 @@ void AMyCharacter::Look(const FInputActionValue& Value)
         AddControllerYawInput(LookAxisVector.X);
         AddControllerPitchInput(LookAxisVector.Y);
     }
+}
+
+void AMyCharacter::FellOutOfWorld(const UDamageType& DmgType)
+{
+    Die();
 }
 
 void AMyCharacter::Die()

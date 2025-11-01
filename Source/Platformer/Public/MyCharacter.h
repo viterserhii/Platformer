@@ -51,6 +51,8 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void FellOutOfWorld(const UDamageType& DmgType) override;
+
 	UFUNCTION(BlueprintCallable)
 	void Die();
 
@@ -77,7 +79,7 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	/** Returns CameraBoom subobject **/
+
 	FORCEINLINE class USpringArmComponent* GetSpringArm() const { return SpringArm; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
