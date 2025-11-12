@@ -12,13 +12,16 @@ The goal is to gradually turn it into a flexible testbed for experimenting with 
 - Death and respawn system using `GameMode`
 - Basic health system
 - `PainCausingVolume` and `KillZ` support for environmental deaths
+- Checkpoints and respawn points
 
 ## 🚧 Planned Features
-- [ ] Checkpoints and respawn points
 - [ ] Collectible items (coins / energy crystals)
-- [ ] Finish zone / level completion
 - [ ] Basic HUD with score counter
 - [ ] Sound effects and simple background music
+- [ ] Interactive objects
+- [ ] Enemies (basic AI, patrols, chase & attack)
+- [ ] Combat system
+- [ ] Menu and save system
 
 ## 🕹️ Controls
 - **Move** — WASD
