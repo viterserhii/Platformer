@@ -17,6 +17,9 @@ public:
 	UFUNCTION()
 	void Respawn(AController* Controller);	
 
+	UFUNCTION(BlueprintCallable, Category = "Checkpoint")
+	void UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn")
 	TSubclassOf<class AMyCharacter> CharacterClass;

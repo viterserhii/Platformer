@@ -20,6 +20,12 @@ void AMyGameMode::BeginPlay()
 	}
 }
 
+void AMyGameMode::UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation)
+{
+    SpawnLocation = NewLocation;
+    SpawnRotation = NewRotation;
+}
+
 void AMyGameMode::Respawn(AController* Controller)
 {
     if (!Controller || !CharacterClass) return;
