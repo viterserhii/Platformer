@@ -26,6 +26,18 @@ void AMyGameMode::UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation)
     SpawnRotation = NewRotation;
 }
 
+void AMyGameMode::AddCoin()
+{
+	Coins++;
+
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		1.5f,
+		FColor::Yellow,
+		FString::Printf(TEXT("Coins: %d"), Coins)
+	);
+}
+
 void AMyGameMode::Respawn(AController* Controller)
 {
     if (!Controller || !CharacterClass) return;

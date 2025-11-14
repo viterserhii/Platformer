@@ -22,11 +22,9 @@ ACheckpoint::ACheckpoint()
 
     BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
     BaseMesh->SetupAttachment(RootComponent);
-    BaseMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     ButtonMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ButtonMesh"));
     ButtonMesh->SetupAttachment(RootComponent);
-    ButtonMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     Collision->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnBeginOverlap);
 }
@@ -59,5 +57,3 @@ void ACheckpoint::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Ot
         }
     }
 }
-
-
