@@ -20,9 +20,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Checkpoint")
 	void UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation);
 
+	UFUNCTION(BlueprintCallable, Category = "Coins")
+	void AddCoin() { Coins++; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn")
 	TSubclassOf<class AMyCharacter> CharacterClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coins")
+	int32 Coins = 0;
 
 private:
 	FVector SpawnLocation;
