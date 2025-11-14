@@ -1,27 +1,52 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Coin.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "MyGameMode.h"
 
-// Sets default values
 ACoin::ACoin()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+    CoinCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
+    SetRootComponent(CoinCollision);
+    CoinCollision->InitSphereRadius(80.f);
+    CoinCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    CoinCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
+    CoinCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	CoinMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CoinMesh"));
+    CoinMesh->SetupAttachment(RootComponent);
+
+    CoinCollision->OnComponentBeginOverlap.AddDynamic(this, &ACoin::OnBeginOverlap);
 }
 
-// Called when the game starts or when spawned
 void ACoin::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
 void ACoin::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
+void ACoin::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, 
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, 
+    bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherActor && (OtherActor != this) && OtherComp)
+    {
+        APawn* PlayerPawn = Cast<APawn>(OtherActor);
+        if (PlayerPawn)
+        {
+            if (AMyGameMode* GM = GetWorld()->GetAuthGameMode<AMyGameMode>())
+            {
+                GM->AddCoin();
+            }
+            Destroy();
+        }
+    }
+}

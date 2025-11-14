@@ -21,7 +21,7 @@ public:
 	void UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Coins")
-	void AddCoin() { Coins++; }
+	void AddCoin(); /*{ Coins++; }*/
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Respawn")
