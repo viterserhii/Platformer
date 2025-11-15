@@ -13,9 +13,9 @@ The goal is to gradually turn it into a flexible testbed for experimenting with 
 - Basic health system
 - `PainCausingVolume` and `KillZ` support for environmental deaths
 - Checkpoints and respawn points
+- Collectible coins
 
 ## 🚧 Planned Features
-- [ ] Collectible items (coins / energy crystals)
 - [ ] Basic HUD with score counter
 - [ ] Sound effects and simple background music
 - [ ] Interactive objects
