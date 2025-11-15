@@ -2,6 +2,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/RotatingMovementComponent.h"
 #include "MyGameMode.h"
 
 ACoin::ACoin()
@@ -10,13 +11,16 @@ ACoin::ACoin()
 
     CoinCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
     SetRootComponent(CoinCollision);
-    CoinCollision->InitSphereRadius(80.f);
+    CoinCollision->InitSphereRadius(60.f);
     CoinCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     CoinCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
     CoinCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	CoinMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CoinMesh"));
     CoinMesh->SetupAttachment(RootComponent);
+
+    RotatingComponent = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovementComponent"));
+    RotatingComponent->RotationRate = FRotator(0, 180, 0);
 
     CoinCollision->OnComponentBeginOverlap.AddDynamic(this, &ACoin::OnBeginOverlap);
 }
@@ -46,6 +50,10 @@ void ACoin::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
             {
                 GM->AddCoin();
             }
+            if (CollectSound)
+            {
+                UGameplayStatics::PlaySoundAtLocation(this, CollectSound, GetActorLocation());
+			}
             Destroy();
         }
     }

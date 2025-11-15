@@ -6,6 +6,8 @@
 
 class USphereComponent;
 class UStaticMeshComponent;
+class USoundBase;
+class URotatingMovementComponent;
 
 UCLASS()
 class PLATFORMER_API ACoin : public AActor
@@ -28,6 +30,12 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Coin")
 	UStaticMeshComponent* CoinMesh = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Coin")
+	USoundBase* CollectSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Coin")
+	URotatingMovementComponent* RotatingComponent = nullptr;
 
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
