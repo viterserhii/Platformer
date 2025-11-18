@@ -1,27 +1,62 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SplinePlatformMover.h"
+#include "Components/SplineComponent.h"
+#include "Components/StaticMeshComponent.h"
 
-// Sets default values
 ASplinePlatformMover::ASplinePlatformMover()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = true;
 
+    Spline = CreateDefaultSubobject<USplineComponent>(TEXT("Spline"));
+    RootComponent = Spline;
+
+    PlatformMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlatformMesh"));
+    PlatformMesh->SetupAttachment(RootComponent);
+    PlatformMesh->SetMobility(EComponentMobility::Movable);
 }
 
-// Called when the game starts or when spawned
 void ASplinePlatformMover::BeginPlay()
 {
-	Super::BeginPlay();
-	
+    Super::BeginPlay();
+
+    if (!Spline)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("MovingPlatformSplineActor: Spline is null on %s"), *GetName());
+        PrimaryActorTick.bCanEverTick = false;
+        return;
+    }
+
+    SplineLength = Spline->GetSplineLength();
+
+    if (SplineLength <= 0.0f)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("MovingPlatformSplineActor: Spline length is zero on %s"), *GetName());
+        PrimaryActorTick.bCanEverTick = false;
+        return;
+    }
+
+    CurrentDistance = 0.0f;
 }
 
-// Called every frame
 void ASplinePlatformMover::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
 
+    if (SplineLength <= 0.0f || MoveSpeed == 0.0f)
+    {
+        return;
+    }
+
+    CurrentDistance += MoveSpeed * DeltaTime;
+
+    CurrentDistance = FMath::Fmod(CurrentDistance, SplineLength);
+    if (CurrentDistance < 0.0f)
+    {
+        CurrentDistance += SplineLength;
+    }
+
+    const FVector NewLocation =
+        Spline->GetLocationAtDistanceAlongSpline(CurrentDistance, ESplineCoordinateSpace::World);
+
+    PlatformMesh->SetWorldLocation(NewLocation);
 }
 

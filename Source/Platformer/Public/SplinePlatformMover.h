@@ -1,10 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "SplinePlatformMover.generated.h"
+
+class USplineComponent;
+class UStaticMeshComponent;
 
 UCLASS()
 class PLATFORMER_API ASplinePlatformMover : public AActor
@@ -12,15 +13,24 @@ class PLATFORMER_API ASplinePlatformMover : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ASplinePlatformMover();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+protected:
+    virtual void BeginPlay() override;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline")
+    USplineComponent* Spline;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spline")
+    UStaticMeshComponent* PlatformMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spline")
+    float MoveSpeed = 200.0f;
+
+private:
+    float CurrentDistance = 0.0f;
+    float SplineLength = 0.0f;
 };
