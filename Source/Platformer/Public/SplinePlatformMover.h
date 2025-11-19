@@ -25,7 +25,7 @@ protected:
     USplineComponent* Spline = nullptr;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Islands",
-        meta = (ClampMin = "1", ClampMax = "8", UIMin = "1", UIMax = "8"))
+        meta = (ClampMin = "0", ClampMax = "8", UIMin = "0", UIMax = "8"))
     int32 NumIslands = 1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Islands")
