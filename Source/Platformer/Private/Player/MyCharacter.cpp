@@ -1,5 +1,5 @@
-#include "MyCharacter.h"
-#include "MyGameMode.h"
+#include "Player/MyCharacter.h"
+#include "Game/MyGameMode.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"

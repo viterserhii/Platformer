@@ -1,9 +1,9 @@
-#include "Coin.h"
+#include "Pickups/Coin.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/RotatingMovementComponent.h"
-#include "MyGameMode.h"
+#include "Game/MyGameMode.h"
 
 ACoin::ACoin()
 {
