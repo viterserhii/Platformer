@@ -1,11 +1,16 @@
 #include "Pickups/CoinPickup.h"
-#include "Game/MyGameMode.h" //PlayerState
+#include "Game/MyPlayerState.h"
 #include "Player/MyCharacter.h"
 
 void ACoinPickup::OnPickedUp(AMyCharacter* Character)
 {
-	if (AMyGameMode* GM = GetWorld()->GetAuthGameMode<AMyGameMode>())
-	{
-		GM->AddCoin();
-	}
+    if (!Character)
+    {
+        return;
+    }
+
+    if (AMyPlayerState* PS = Character->GetPlayerState<AMyPlayerState>())
+    {
+        PS->AddCoin();
+    }
 }
