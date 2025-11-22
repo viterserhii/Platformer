@@ -1,10 +1,10 @@
-#include "Checkpoint.h"
+#include "World/Checkpoint.h"
 #include "Components/SphereComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
-#include "MyGameMode.h"
+#include "Game/MyGameMode.h"
 
 ACheckpoint::ACheckpoint()
 {

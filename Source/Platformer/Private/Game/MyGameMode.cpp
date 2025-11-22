@@ -1,7 +1,7 @@
-#include "MyGameMode.h"
+#include "Game/MyGameMode.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
-#include "MyCharacter.h"
+#include "Player/MyCharacter.h"
 
 AMyGameMode::AMyGameMode()
 {

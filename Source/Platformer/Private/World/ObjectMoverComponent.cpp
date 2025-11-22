@@ -1,4 +1,4 @@
-#include "ObjectMoverComponent.h"
+#include "World/ObjectMoverComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 UObjectMoverComponent::UObjectMoverComponent()

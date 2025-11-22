@@ -1,4 +1,4 @@
-#include "SplinePlatformMover.h"
+#include "World/SplinePlatformMover.h"
 #include "Components/SplineComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
