@@ -1,26 +1,43 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "PickupBase.generated.h"
 
+class USphereComponent;
+class UStaticMeshComponent;
+class USoundBase;
+class AMyCharacter;
+class URotatingMovementComponent;
+
 UCLASS()
 class PLATFORMER_API APickupBase : public AActor
 {
-	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	APickupBase();
+    GENERATED_BODY()
+
+public:
+    APickupBase();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickup")
+    USphereComponent* Collision = nullptr;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickup")
+    UStaticMeshComponent* Mesh = nullptr;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickup")
+    URotatingMovementComponent* RotatingComponent = nullptr;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
+    USoundBase* PickupSound = nullptr;
+
+    virtual void OnPickedUp(AMyCharacter* Character);
+
+private:
+    UFUNCTION()
+    void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+        bool bFromSweep, const FHitResult& SweepResult);
 };
