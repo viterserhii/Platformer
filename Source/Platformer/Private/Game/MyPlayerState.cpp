@@ -1,10 +1,6 @@
 #include "Game/MyPlayerState.h"
 #include "Engine/Engine.h"
 
-//#include "Kismet/GameplayStatics.h"
-//#include "Game/MyGameMode.h"
-//#include "Player/MyCharacter.h"
-
 AMyPlayerState::AMyPlayerState()
 {
 }
