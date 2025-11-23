@@ -1,11 +1,12 @@
 #include "Game/MyGameMode.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
+#include "Game/MyPlayerState.h"
 #include "Player/MyCharacter.h"
 
 AMyGameMode::AMyGameMode()
 {
-
+    PlayerStateClass = AMyPlayerState::StaticClass();
 }
 
 void AMyGameMode::BeginPlay()
@@ -24,18 +25,6 @@ void AMyGameMode::UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation)
 {
     SpawnLocation = NewLocation;
     SpawnRotation = NewRotation;
-}
-
-void AMyGameMode::AddCoin()
-{
-	Coins++;
-
-	GEngine->AddOnScreenDebugMessage(
-		-1,
-		1.5f,
-		FColor::Yellow,
-		FString::Printf(TEXT("Coins: %d"), Coins)
-	);
 }
 
 void AMyGameMode::Respawn(AController* Controller)
