@@ -1,8 +1,9 @@
 #include "Game/MyGameMode.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
-#include "Game/MyPlayerState.h"
 #include "Player/MyCharacter.h"
+#include "Game/MyPlayerState.h"
+#include "World/Checkpoint.h"
 
 AMyGameMode::AMyGameMode()
 {
@@ -11,25 +12,34 @@ AMyGameMode::AMyGameMode()
 
 void AMyGameMode::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
-	AActor* PlayerStart = UGameplayStatics::GetActorOfClass(this, APlayerStart::StaticClass());
-	if (PlayerStart)
-	{
-		SpawnLocation = PlayerStart->GetActorLocation();
-		SpawnRotation = PlayerStart->GetActorRotation();
-	}
+    if (AActor* PlayerStart = UGameplayStatics::GetActorOfClass(this, APlayerStart::StaticClass()))
+    {
+        DefaultSpawnTransform = PlayerStart->GetActorTransform();
+    }
 }
 
-void AMyGameMode::UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation)
+void AMyGameMode::SetCurrentCheckpoint(ACheckpoint* NewCheckpoint)
 {
-    SpawnLocation = NewLocation;
-    SpawnRotation = NewRotation;
+    if (!NewCheckpoint) return;
+
+    if (CurrentCheckpoint)
+    {
+        CurrentCheckpoint->DeactivateCheckpoint();
+    }
+
+    CurrentCheckpoint = NewCheckpoint;
+    CurrentCheckpoint->ActivateCheckpoint();
 }
 
 void AMyGameMode::Respawn(AController* Controller)
 {
     if (!Controller || !CharacterClass) return;
+
+    const FTransform SpawnTransform =
+        CurrentCheckpoint ? CurrentCheckpoint->GetSpawnTransform()
+        : DefaultSpawnTransform;
 
     if (APawn* OldPawn = Controller->GetPawn())
     {
@@ -37,9 +47,16 @@ void AMyGameMode::Respawn(AController* Controller)
     }
 
     FActorSpawnParameters SpawnParams;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    SpawnParams.SpawnCollisionHandlingOverride =
+        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-    AMyCharacter* NewPawn = GetWorld()->SpawnActor<AMyCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
+    AMyCharacter* NewPawn = GetWorld()->SpawnActor<AMyCharacter>(
+        CharacterClass,
+        SpawnTransform.GetLocation(),
+        SpawnTransform.GetRotation().Rotator(),
+        SpawnParams
+    );
+
     if (NewPawn)
     {
         Controller->Possess(NewPawn);

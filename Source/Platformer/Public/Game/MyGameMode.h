@@ -4,27 +4,31 @@
 #include "GameFramework/GameModeBase.h"
 #include "MyGameMode.generated.h"
 
+class AMyCharacter;
+class ACheckpoint;
+
 UCLASS()
 class PLATFORMER_API AMyGameMode : public AGameModeBase
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	AMyGameMode();	
+    AMyGameMode();
 
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
-	UFUNCTION()
-	void Respawn(AController* Controller);	
+    UFUNCTION(BlueprintCallable)
+    void Respawn(AController* Controller);
 
-	UFUNCTION(BlueprintCallable, Category = "Checkpoint")
-	void UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation);
+    void SetCurrentCheckpoint(ACheckpoint* NewCheckpoint);
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Respawn")
-	TSubclassOf<class AMyCharacter> CharacterClass;
+    UPROPERTY(EditDefaultsOnly, Category = "Respawn")
+    TSubclassOf<AMyCharacter> CharacterClass;
 
 private:
-	FVector SpawnLocation;
-	FRotator SpawnRotation;
+    UPROPERTY()
+    ACheckpoint* CurrentCheckpoint = nullptr;
+
+    FTransform DefaultSpawnTransform;
 };
