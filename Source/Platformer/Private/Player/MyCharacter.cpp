@@ -1,17 +1,19 @@
 #include "Player/MyCharacter.h"
 #include "Game/MyGameMode.h"
+
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Controller.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/PlayerCameraManager.h"  
+#include "Components/CapsuleComponent.h" 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"   
 
 AMyCharacter::AMyCharacter()
 {
@@ -19,16 +21,21 @@ AMyCharacter::AMyCharacter()
 
     SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
     SpringArm->SetupAttachment(RootComponent);
-    SpringArm->TargetArmLength = 300.0f; 
-    SpringArm->bUsePawnControlRotation = true; 
+    SpringArm->TargetArmLength = 300.0f;
+    SpringArm->bUsePawnControlRotation = true;
 
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-    Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName); 
+    Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
     Camera->bUsePawnControlRotation = false;
 
     bUseControllerRotationYaw = false;
-    GetCharacterMovement()->bOrientRotationToMovement = true; 
-    GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+
+    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+    {
+        MoveComp->bOrientRotationToMovement = true;
+        MoveComp->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
+        MoveComp->MaxWalkSpeed = 500.0f;
+    }
 }
 
 void AMyCharacter::Tick(float DeltaSeconds)
@@ -36,18 +43,14 @@ void AMyCharacter::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 }
 
-
-//////////////////////////////////////////////////////////////////////////
-// Input
-
 void AMyCharacter::NotifyControllerChanged()
 {
     Super::NotifyControllerChanged();
 
-    // Add Input Mapping Context
     if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
     {
-        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+            ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
         {
             Subsystem->AddMappingContext(DefaultMappingContext, 0);
         }
@@ -56,7 +59,8 @@ void AMyCharacter::NotifyControllerChanged()
 
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-    if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+    if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+    {
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
         EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
@@ -67,22 +71,16 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AMyCharacter::Move(const FInputActionValue& Value)
 {
-    // input is a Vector2D
-    FVector2D MovementVector = Value.Get<FVector2D>();
+    const FVector2D MovementVector = Value.Get<FVector2D>();
 
-    if (Controller != nullptr)
+    if (Controller)
     {
-        // find out which way is forward
         const FRotator Rotation = Controller->GetControlRotation();
-        const FRotator YawRotation(0, Rotation.Yaw, 0);
+        const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
 
-        // get forward vector
         const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
-        // get right vector 
         const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-        // add movement 
         AddMovementInput(ForwardDirection, MovementVector.Y);
         AddMovementInput(RightDirection, MovementVector.X);
     }
@@ -90,29 +88,27 @@ void AMyCharacter::Move(const FInputActionValue& Value)
 
 void AMyCharacter::Sprint(const FInputActionValue& Value)
 {
-    bool ShouldSprint = Value.Get<bool>();
+    const bool bShouldSprint = Value.Get<bool>();
 
-    if (ShouldSprint)
+    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
     {
-        if (GetCharacterMovement()->IsMovingOnGround())
+        if (bShouldSprint && MoveComp->IsMovingOnGround())
         {
-            GetCharacterMovement()->MaxWalkSpeed = 800.0f;
+            MoveComp->MaxWalkSpeed = 800.0f;
         }
-    }
-    else
-    {
-        GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+        else
+        {
+            MoveComp->MaxWalkSpeed = 500.0f;
+        }
     }
 }
 
 void AMyCharacter::Look(const FInputActionValue& Value)
 {
-    // input is a Vector2D
-    FVector2D LookAxisVector = Value.Get<FVector2D>();
+    const FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-    if (Controller != nullptr)
+    if (Controller)
     {
-        // add yaw and pitch input to controller
         AddControllerYawInput(LookAxisVector.X);
         AddControllerPitchInput(LookAxisVector.Y);
     }
@@ -123,38 +119,84 @@ void AMyCharacter::FellOutOfWorld(const UDamageType& DmgType)
     Die();
 }
 
-float AMyCharacter::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent,
-    AController* EventInstigator, AActor* DamageCauser)
-{
-    if (bIsDead || DamageAmount <= 0.f) return 0.f;
-
-    Health -= DamageAmount;
-    if (Health <= 0.f)
-    {
-        Health = 0.f;
-        Die();
-    }
-    return DamageAmount;
-}
-
 void AMyCharacter::Die()
 {
-    if (bIsDead) return;
-    bIsDead = true;
-
-    if (auto* Move = GetCharacterMovement())
+    if (bIsDying)
     {
-        Move->StopMovementImmediately();
+        return;
     }
-    DisableInput(Cast<APlayerController>(GetController()));
+    bIsDying = true;
+
+    if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+    {
+        MoveComp->StopMovementImmediately();
+        MoveComp->DisableMovement();
+    }
+
+    if (UCapsuleComponent* Capsule = GetCapsuleComponent())
+    {
+        Capsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
+
+    if (USkeletalMeshComponent* MeshComp = GetMesh())
+    {
+        MeshComp->SetCollisionProfileName(TEXT("Ragdoll"));
+        MeshComp->SetAllBodiesSimulatePhysics(true);
+        MeshComp->SetSimulatePhysics(true);
+        MeshComp->WakeAllRigidBodies();
+        MeshComp->bBlendPhysics = true;
+    }
 
     if (APlayerController* PC = Cast<APlayerController>(GetController()))
     {
-        if (AMyGameMode* GM = GetWorld()->GetAuthGameMode<AMyGameMode>())
+        if (PC->PlayerCameraManager)
         {
-            GM->Respawn(PC);
-            return;
+            PC->PlayerCameraManager->StartCameraFade(
+                0.f, 
+                1.f,   
+                FadeDuration, 
+                FLinearColor::Black,
+                false,  
+                true   
+            );
         }
     }
-    UE_LOG(LogTemp, Warning, TEXT("Die(): Respawn couldn't be triggered"));
+
+    GetWorldTimerManager().SetTimer(
+        RespawnTimerHandle,
+        this,
+        &AMyCharacter::OnDeathFinished,
+        RespawnDelay,
+        false
+    );
+}
+
+void AMyCharacter::OnDeathFinished()
+{
+    APlayerController* PC = Cast<APlayerController>(GetController());
+    if (!PC)
+    {
+        Destroy();
+        return;
+    }
+
+    if (AMyGameMode* GM = GetWorld()->GetAuthGameMode<AMyGameMode>())
+    {
+        GM->Respawn(PC);
+
+        if (PC->PlayerCameraManager)
+        {
+            PC->PlayerCameraManager->StartCameraFade(
+                1.f,
+                0.f,
+                FadeDuration,
+                FLinearColor::Black,
+                false,
+                false
+            );
+        }
+        return;
+    }
+
+    Destroy();
 }
