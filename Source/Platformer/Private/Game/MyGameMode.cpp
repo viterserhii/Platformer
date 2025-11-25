@@ -3,6 +3,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Game/MyPlayerState.h"
 #include "Player/MyCharacter.h"
+#include "World/Checkpoint.h"
 
 AMyGameMode::AMyGameMode()
 {
@@ -21,10 +22,22 @@ void AMyGameMode::BeginPlay()
 	}
 }
 
-void AMyGameMode::UpdateSpawnPoint(FVector NewLocation, FRotator NewRotation)
+void AMyGameMode::SetCurrentCheckpoint(ACheckpoint* NewCheckpoint)
 {
-    SpawnLocation = NewLocation;
-    SpawnRotation = NewRotation;
+	if (!NewCheckpoint) return;
+
+	if (CurrentCheckpoint)
+	{
+		CurrentCheckpoint->DeactivateCheckpoint();
+		PreviousCheckpoint = CurrentCheckpoint;
+	}
+
+	CurrentCheckpoint = NewCheckpoint;
+	CurrentCheckpoint->ActivateCheckpoint();
+
+	const FTransform SpawnTransform = CurrentCheckpoint->GetSpawnTransform();
+	SpawnLocation = SpawnTransform.GetLocation();
+	SpawnRotation = SpawnTransform.Rotator();
 }
 
 void AMyGameMode::Respawn(AController* Controller)

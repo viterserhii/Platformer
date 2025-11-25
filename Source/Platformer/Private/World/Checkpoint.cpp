@@ -13,6 +13,7 @@ ACheckpoint::ACheckpoint()
     Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
     SetRootComponent(Collision);
     Collision->InitSphereRadius(80.f);
+    Collision->SetCollisionObjectType(ECC_WorldDynamic);
     Collision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     Collision->SetCollisionResponseToAllChannels(ECR_Ignore);
     Collision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
@@ -32,28 +33,60 @@ ACheckpoint::ACheckpoint()
 void ACheckpoint::BeginPlay()
 {
     Super::BeginPlay();
+
+    if (DefaultMaterial && ButtonMesh)
+    {
+        ButtonMesh->SetMaterial(0, DefaultMaterial);
+    }
 }
 
-void ACheckpoint::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-    bool bFromSweep, const FHitResult& SweepResult)
+void ACheckpoint::OnBeginOverlap(
+    UPrimitiveComponent* OverlappedComp,
+    AActor* OtherActor,
+    UPrimitiveComponent* OtherComp,
+    int32 OtherBodyIndex,
+    bool bFromSweep,
+    const FHitResult& SweepResult)
 {
-    if (bActivated) return;
-    if (!OtherActor || !OtherActor->IsA<ACharacter>()) return;
+    if (bIsActivated)
+        return;
+
+    ACharacter* PlayerChar = Cast<ACharacter>(OtherActor);
+    if (!PlayerChar)
+        return;
 
     if (AMyGameMode* GM = GetWorld()->GetAuthGameMode<AMyGameMode>())
     {
-        GM->UpdateSpawnPoint(Arrow->GetComponentLocation(), Arrow->GetComponentRotation());
-        bActivated = true;
-
-        if (ActivateSound)
-        {
-            UGameplayStatics::PlaySoundAtLocation(this, ActivateSound, GetActorLocation());
-        }
-
-        if (ButtonActiveMaterial && ButtonMesh)
-        {
-            ButtonMesh->SetMaterial(0, ButtonActiveMaterial);
-        }
+        GM->SetCurrentCheckpoint(this);
     }
+}
+
+void ACheckpoint::ActivateCheckpoint()
+{
+    bIsActivated = true;
+
+    if (ActivateSound)
+    {
+        UGameplayStatics::PlaySoundAtLocation(this, ActivateSound, GetActorLocation());
+    }
+
+    if (ButtonActiveMaterial && ButtonMesh)
+    {
+        ButtonMesh->SetMaterial(0, ButtonActiveMaterial);
+    }
+}
+
+void ACheckpoint::DeactivateCheckpoint()
+{
+    bIsActivated = false;
+
+    if (DefaultMaterial && ButtonMesh)
+    {
+        ButtonMesh->SetMaterial(0, DefaultMaterial);
+    }
+}
+
+FTransform ACheckpoint::GetSpawnTransform() const
+{
+    return Arrow ? Arrow->GetComponentTransform() : GetActorTransform();
 }
