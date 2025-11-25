@@ -1,8 +1,8 @@
 #include "Game/MyGameMode.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
-#include "Game/MyPlayerState.h"
 #include "Player/MyCharacter.h"
+#include "Game/MyPlayerState.h"
 #include "World/Checkpoint.h"
 
 AMyGameMode::AMyGameMode()
@@ -12,47 +12,57 @@ AMyGameMode::AMyGameMode()
 
 void AMyGameMode::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
-	AActor* PlayerStart = UGameplayStatics::GetActorOfClass(this, APlayerStart::StaticClass());
-	if (PlayerStart)
-	{
-		SpawnLocation = PlayerStart->GetActorLocation();
-		SpawnRotation = PlayerStart->GetActorRotation();
-	}
+    // Беремо трансформ PlayerStart як дефолтну точку респавну
+    if (AActor* PlayerStart = UGameplayStatics::GetActorOfClass(this, APlayerStart::StaticClass()))
+    {
+        DefaultSpawnTransform = PlayerStart->GetActorTransform();
+    }
 }
 
 void AMyGameMode::SetCurrentCheckpoint(ACheckpoint* NewCheckpoint)
 {
-	if (!NewCheckpoint) return;
+    if (!NewCheckpoint) return;
 
-	if (CurrentCheckpoint)
-	{
-		CurrentCheckpoint->DeactivateCheckpoint();
-		PreviousCheckpoint = CurrentCheckpoint;
-	}
+    // Деактивуємо старий чекпоінт
+    if (CurrentCheckpoint)
+    {
+        CurrentCheckpoint->DeactivateCheckpoint();
+    }
 
-	CurrentCheckpoint = NewCheckpoint;
-	CurrentCheckpoint->ActivateCheckpoint();
-
-	const FTransform SpawnTransform = CurrentCheckpoint->GetSpawnTransform();
-	SpawnLocation = SpawnTransform.GetLocation();
-	SpawnRotation = SpawnTransform.Rotator();
+    // Активуємо новий
+    CurrentCheckpoint = NewCheckpoint;
+    CurrentCheckpoint->ActivateCheckpoint();
 }
 
 void AMyGameMode::Respawn(AController* Controller)
 {
     if (!Controller || !CharacterClass) return;
 
+    // Визначаємо трансформ для респавну:
+    const FTransform SpawnTransform =
+        CurrentCheckpoint ? CurrentCheckpoint->GetSpawnTransform()
+        : DefaultSpawnTransform;
+
+    // Видаляємо старого персонажа (якщо є)
     if (APawn* OldPawn = Controller->GetPawn())
     {
         OldPawn->Destroy();
     }
 
+    // Спавнимо нового персонажа
     FActorSpawnParameters SpawnParams;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    SpawnParams.SpawnCollisionHandlingOverride =
+        ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-    AMyCharacter* NewPawn = GetWorld()->SpawnActor<AMyCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
+    AMyCharacter* NewPawn = GetWorld()->SpawnActor<AMyCharacter>(
+        CharacterClass,
+        SpawnTransform.GetLocation(),
+        SpawnTransform.GetRotation().Rotator(),
+        SpawnParams
+    );
+
     if (NewPawn)
     {
         Controller->Possess(NewPawn);

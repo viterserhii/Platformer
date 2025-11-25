@@ -35,13 +35,13 @@ private:
     UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     UStaticMeshComponent* ButtonMesh = nullptr;
 
-    UPROPERTY(EditAnywhere, Category = "Checkpoint")
+    UPROPERTY(EditDefaultsOnly, Category = "Checkpoint")
     UMaterialInterface* DefaultMaterial = nullptr;
 
-    UPROPERTY(EditAnywhere, Category = "Checkpoint")
+    UPROPERTY(EditDefaultsOnly, Category = "Checkpoint")
     UMaterialInterface* ButtonActiveMaterial = nullptr;
 
-    UPROPERTY(EditAnywhere, Category = "Checkpoint")
+    UPROPERTY(EditDefaultsOnly, Category = "Checkpoint")
     USoundBase* ActivateSound = nullptr;
 
     UPROPERTY(VisibleInstanceOnly, Category = "Checkpoint")
@@ -54,7 +54,8 @@ private:
         UPrimitiveComponent* OtherComp,
         int32 OtherBodyIndex,
         bool bFromSweep,
-        const FHitResult& SweepResult);
+        const FHitResult& SweepResult
+    );
 
 public:
 
