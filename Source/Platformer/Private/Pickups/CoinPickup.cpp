@@ -13,4 +13,5 @@ void ACoinPickup::OnPickedUp(AMyCharacter* Character)
     {
         PS->AddCoin();
     }
+	Super::OnPickedUp(Character);
 }
