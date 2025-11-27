@@ -17,3 +17,26 @@ GEngine->AddOnScreenDebugMessage(
 	);
 }
 
+void AMyPlayerState::AddLive()
+{
+    Lives = FMath::Clamp(Lives + 1, 0, MaxLives);
+
+    GEngine->AddOnScreenDebugMessage(
+        -1,
+        1.5f,
+        FColor::Red,
+        FString::Printf(TEXT("Lives: %d"), Lives)
+    );
+}
+
+void AMyPlayerState::RemoveLive()
+{
+    Lives = FMath::Clamp(Lives - 1, 0, MaxLives);
+
+    GEngine->AddOnScreenDebugMessage(
+        -1,
+        1.5f,
+        FColor::Red,
+        FString::Printf(TEXT("Lives: %d"), Lives)
+    );
+}
