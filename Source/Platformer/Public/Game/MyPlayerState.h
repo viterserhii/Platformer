@@ -15,8 +15,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Coins")
 	void AddCoin();
 
+	UFUNCTION(BlueprintCallable, Category = "Lives")
+	void AddLive();
+
+	UFUNCTION(BlueprintCallable, Category = "Lives")
+	void RemoveLive();
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetLives() const { return Lives; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coins")
 	int32 Coins = 0;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lives")
+	int32 LivesOnStart = 3;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lives")
+	int32 MaxLives = 99;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lives")
+	int32 Lives = LivesOnStart;
 };

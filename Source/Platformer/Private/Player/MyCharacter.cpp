@@ -182,7 +182,7 @@ void AMyCharacter::OnDeathFinished()
 
     if (AMyGameMode* GM = GetWorld()->GetAuthGameMode<AMyGameMode>())
     {
-        GM->Respawn(PC);
+        GM->HandlePlayerDeath(PC);
 
         if (PC->PlayerCameraManager)
         {
