@@ -39,7 +39,7 @@ void AMyGameMode::Respawn(AController* Controller)
 
     const FTransform SpawnTransform =
         CurrentCheckpoint ? CurrentCheckpoint->GetSpawnTransform()
-        : DefaultSpawnTransform;
+                          : DefaultSpawnTransform;
 
     if (APawn* OldPawn = Controller->GetPawn())
     {
@@ -61,4 +61,26 @@ void AMyGameMode::Respawn(AController* Controller)
     {
         Controller->Possess(NewPawn);
     }
+}
+
+void AMyGameMode::HandlePlayerDeath(AController* Controller)
+{
+    if (!Controller)
+    {
+        return;
+    }
+
+    AMyPlayerState* PS = Controller->GetPlayerState<AMyPlayerState>();
+    if (PS)
+    {
+        PS->RemoveLive();
+
+        if (PS->GetLives() <= 0)
+        {
+            const FName CurrentLevelName(*GetWorld()->GetName());
+            UGameplayStatics::OpenLevel(this, CurrentLevelName);
+            return;
+        }
+    }
+    Respawn(Controller);
 }

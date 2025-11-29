@@ -6,6 +6,7 @@
 
 class AMyCharacter;
 class ACheckpoint;
+class AMyPlayerState;
 
 UCLASS()
 class PLATFORMER_API AMyGameMode : public AGameModeBase
@@ -19,6 +20,9 @@ public:
 
     UFUNCTION(BlueprintCallable)
     void Respawn(AController* Controller);
+
+    UFUNCTION(BlueprintCallable)
+    void HandlePlayerDeath(AController* Controller);
 
     void SetCurrentCheckpoint(ACheckpoint* NewCheckpoint);
 

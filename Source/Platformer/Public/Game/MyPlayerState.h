@@ -21,6 +21,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Lives")
 	void RemoveLive();
 
+	UFUNCTION(BlueprintCallable)
+	int32 GetLives() const { return Lives; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coins")
 	int32 Coins = 0;
