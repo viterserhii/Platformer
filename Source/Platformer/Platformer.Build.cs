@@ -14,7 +14,8 @@ public class Platformer : ModuleRules
             "Engine",
             "InputCore",
             "EnhancedInput",
-            "Paper2D"
+            "Paper2D",
+            "InteractionSystem",
         });
 	}
 }
