@@ -14,6 +14,8 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "TimerManager.h"   
+#include "InteractionInterface.h"
+#include "DrawDebugHelpers.h"
 
 AMyCharacter::AMyCharacter()
 {
@@ -66,6 +68,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
         EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMyCharacter::Move);
         EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMyCharacter::Sprint);
         EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyCharacter::Look);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AMyCharacter::Interact);
     }
 }
 
@@ -199,4 +202,42 @@ void AMyCharacter::OnDeathFinished()
     }
 
     Destroy();
+}
+
+void AMyCharacter::Interact(const FInputActionValue& Value)
+{
+    const FVector Center = GetActorLocation();
+    const float   Radius = 150.f;
+
+    TArray<FOverlapResult> Hits;
+
+    FCollisionShape Sphere = FCollisionShape::MakeSphere(Radius);
+    FCollisionQueryParams Params;
+    Params.AddIgnoredActor(this);
+
+    bool bHit = GetWorld()->OverlapMultiByChannel(
+        Hits,
+        Center,
+        FQuat::Identity,
+        ECC_Visibility,
+        Sphere,
+        Params
+    );
+
+    if (!bHit)
+    {
+        return;
+    }
+
+    for (const FOverlapResult& Hit : Hits)
+    {
+        AActor* HitActor = Hit.GetActor();
+        if (HitActor && HitActor->Implements<UInteractionInterface>())
+        {
+            IInteractionInterface::Execute_Interact(HitActor);
+            break;
+        }
+    }
+
+    DrawDebugSphere(GetWorld(), Center, Radius, 16, FColor::Green, false, 0.5f);
 }

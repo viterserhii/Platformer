@@ -36,6 +36,9 @@ class PLATFORMER_API AMyCharacter : public ACharacter
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
     UInputAction* LookAction;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
+
 public:
     AMyCharacter();
 
@@ -50,6 +53,7 @@ protected:
     void Move(const FInputActionValue& Value);
     void Sprint(const FInputActionValue& Value);
     void Look(const FInputActionValue& Value);
+    void Interact(const FInputActionValue& Value);
 
     virtual void NotifyControllerChanged() override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
