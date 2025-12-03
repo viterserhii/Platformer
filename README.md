@@ -8,25 +8,31 @@ At its core, this is a basic 3D platformer focused on character movement and res
 The goal is to gradually turn it into a flexible testbed for experimenting with mechanics such as collectibles, checkpoints, and level progression.
 
 ## 🧱 Current Features
-- Third-person character movement (walk, jump, sprint)
-- Death and respawn system using `GameMode`
-- Basic health system
-- `PainCausingVolume` and `KillZ` support for environmental deaths
-- Checkpoints and respawn points
-- Collectible coins
+- Third-person character movement  
+  - walk, run, jump
+- Checkpoint & respawn system  
+- Advanced life system  
+  - multiple lives  
+  - respawn at checkpoints  
+  - full level restart when lives run out  
+- Moving platforms  
+  - point-to-point platforms  
+  - spline-based platforms  
+- Traps
+- Collectibles  
+- Interaction system
 
 ## 🚧 Planned Features
-- [ ] Basic HUD with score counter
-- [ ] Sound effects and simple background music
-- [ ] Interactive objects
-- [ ] Enemies (basic AI, patrols, chase & attack)
-- [ ] Combat system
-- [ ] Menu and save system
+- [ ] Stamina system
+- [ ] Sound design
+- [ ] User interface
+- [ ] Main menu and pause menu 
 
 ## 🕹️ Controls
 - **Move** — WASD
 - **Jump** — Space  
-- **Sprint** — Left Shift  
+- **Sprint** — Left Shift
+- **Interact** - E 
 
 ## 🧩 How to Run
 1. Clone the repository  
@@ -40,7 +46,7 @@ The main focus is gameplay programming, logic structure, and engine systems expl
 
 ## 👤 Author
 **Serhii Viter**  
-Telegram: [@sergiivit](https://t.me/sergiivit)
+Telegram: [@viterserhii](https://t.me/viterserhii)
 
 ---
 
