@@ -26,13 +26,14 @@ The goal is to gradually turn it into a flexible testbed for experimenting with 
 - [ ] Stamina system
 - [ ] Sound design
 - [ ] User interface
-- [ ] Main menu and pause menu 
+- [ ] Main menu and pause menu
+- [ ] Dualsense support 
 
 ## 🕹️ Controls
 - **Move** — WASD
 - **Jump** — Space  
 - **Sprint** — Left Shift
-- **Interact** - E 
+- **Interact** — E 
 
 ## 🧩 How to Run
 1. Clone the repository  
