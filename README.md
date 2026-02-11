@@ -37,7 +37,7 @@ The goal is to gradually turn it into a flexible testbed for experimenting with 
 
 ## 🧩 How to Run
 1. Clone the repository  
-2. Open the `.uproject` file in **Unreal Engine 5.4** (or newer)  
+2. Open the `.uproject` file in **Unreal Engine 5.7** (or newer)  
 3. Load the test level  
 4. Press **Play** to start
 
