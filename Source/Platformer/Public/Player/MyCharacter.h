@@ -15,6 +15,8 @@ class PLATFORMER_API AMyCharacter : public ACharacter
 {
     GENERATED_BODY()
 
+private:
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
     USpringArmComponent* SpringArm;
 
@@ -37,26 +39,19 @@ class PLATFORMER_API AMyCharacter : public ACharacter
     UInputAction* LookAction;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* InteractAction;
-
-public:
-    AMyCharacter();
-
-    virtual void Tick(float DeltaSeconds) override;
-
-    virtual void FellOutOfWorld(const UDamageType& DmgType) override;
-
-    UFUNCTION(BlueprintCallable)
-    void Die();
+    UInputAction* InteractAction;
 
 protected:
+
+    virtual void NotifyControllerChanged() override;
+    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
     void Move(const FInputActionValue& Value);
     void Sprint(const FInputActionValue& Value);
     void Look(const FInputActionValue& Value);
     void Interact(const FInputActionValue& Value);
 
-    virtual void NotifyControllerChanged() override;
-    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+    virtual void FellOutOfWorld(const UDamageType& DmgType) override;
 
     UPROPERTY(EditAnywhere, Category = "Death")
     float RespawnDelay = 1.5f;
@@ -71,6 +66,14 @@ protected:
     void OnDeathFinished();
 
 public:
+
+    AMyCharacter();
+
+    virtual void Tick(float DeltaSeconds) override;
+
+    UFUNCTION(BlueprintCallable)
+    void Die();
+
     FORCEINLINE USpringArmComponent* GetSpringArm() const { return SpringArm; }
     FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
 };

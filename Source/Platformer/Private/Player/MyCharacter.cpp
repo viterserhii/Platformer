@@ -13,6 +13,8 @@
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
+#include "Engine/EngineTypes.h"
+#include "Engine/OverlapResult.h"
 #include "TimerManager.h"   
 #include "InteractionInterface.h"
 #include "DrawDebugHelpers.h"
